@@ -1,2 +1,2 @@
-# RiskV-SoC
+# RiscV-SoC
 Last Hope
