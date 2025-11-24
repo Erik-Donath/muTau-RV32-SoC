@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libevent-dev libjson-c-dev verilator ca-certificates tar meson ninja-build \
     cmake clang llvm python3-dev libboost-dev libboost-filesystem-dev libboost-thread-dev libboost-program-options-dev libboost-iostreams-dev libeigen3-dev \
     tcl-dev libreadline-dev libffi-dev bison flex pkg-config \
-    yosys openfpgaloader\
+    yosys openfpgaloader libgl1-mesa-glx libxtst6 libasound2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Python environment with LiteX installed
@@ -46,6 +46,12 @@ RUN git clone --recursive https://github.com/YosysHQ/nextpnr.git /opt/nextpnr \
     && cmake .. -DARCH="himbaechel" -DHIMBAECHEL_UARCH="gowin" \
     && make -j"$(nproc)" \
     && make install
+
+# Stage 5: Add Gowin Toolchain (Assuming you copy it into the image)
+
+COPY IDE /workspace/IDE
+
+ENV PATH="/workspace/IDE/bin:$PATH"
 
 WORKDIR /workspace
 

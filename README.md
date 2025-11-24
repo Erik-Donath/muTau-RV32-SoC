@@ -3,7 +3,7 @@ Last Hope
 
 # Use 
 to use the Project and the build tools you need to download the gowin-eda from there website and place the IDE Directory in the root Directory of this Project then just run `make env` to build an run the Docker-Container do to this Project is in en experimental state in the Docker-Container type in the CLI `PATH="$PATH:workspace/IDE/bin"` then build the CPU via `python3 cpu.py --build`.
-
+`export PATH="$PATH:/workspace/IDE/bin"`
 At the moment you will run into an error:
 ``` bash
 python3 -m litex.soc.software.crcfbigen bios.bin --little
