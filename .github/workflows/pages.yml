@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "pages/**"
+      - ".github/workflows/pages.yml"
 
 permissions:
   contents: read
