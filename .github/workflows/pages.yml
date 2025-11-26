@@ -38,9 +38,6 @@ jobs:
         run: |
           mkdir -p ../../result/doc
           latex2html -dir ../../result/doc -html_version 4.0,latin1 main.tex
-          if [ -f ../../result/doc/main.html ]; then
-            mv ../../result/doc/main.html ../../result/doc/index.html
-          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
