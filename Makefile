@@ -1,30 +1,37 @@
 IMAGE_NAME := riscv
 CONTAINER_NAME := riscv
 
-
 .PHONY: build run clean help env
-
 
 help:
 	@echo "Commands:"
-	@echo "  build    - Builds the whole Project"
-	@echo "  env      - Creates a Development Environment with all necessary tools"
-	@echo "  run      - Builds image (if needed) and runs the build steps"
-	@echo "  clean    - Cleans up the Docker image"
-
+	@echo "  build    - Builds the Docker image"
+	@echo "  env      - Opens a dev shell in the image"
+	@echo "  run      - Builds SoC (same env as 'env' + auto cpu.py --build)"
+	@echo "  clean    - Removes the Docker image"
 
 build:
 	docker build -t $(IMAGE_NAME) .
 
-
-env:
-	docker build --build-arg ENV=dev -t $(IMAGE_NAME) .
-	docker run --rm -it -v "$(shell pwd)":/workspace --name $(CONTAINER_NAME) $(IMAGE_NAME)
-	docker exec -it $(CONTAINER_NAME) sh -c "echo 'Hello World from the Docker'"
+# Interactive dev environment
+env: build
+	docker run --rm -it \
+		-v "$(shell pwd)":/workspace \
+		-w /workspace \
+		--name $(CONTAINER_NAME) \
+		$(IMAGE_NAME) \
+		bash
 
 run: build
-	docker run --rm -v "$(shell pwd)":/workspace --name $(CONTAINER_NAME) $(IMAGE_NAME) \
-		sh -lc 'python3 cpu.py --build'
+	docker run --rm -it \
+		-v "$(shell pwd)":/workspace \
+		-w /workspace \
+		--name $(CONTAINER_NAME) \
+		-e PYTHON=/opt/venv/bin/python3 \
+		-e GOWIN_HOME=/workspace/IDE \
+		$(IMAGE_NAME) \
+		bash -lc '/opt/venv/bin/python3 cpu.py --build'
+
 
 clean:
-	docker rmi $(IMAGE_NAME)
+	docker rmi $(IMAGE_NAME) || true

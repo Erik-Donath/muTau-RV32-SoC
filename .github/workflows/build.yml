@@ -1,21 +1,21 @@
 name: Build
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   contents: read
   actions: read
 
+env:
+  GOWIN_VERSION: "1.9.11.03"
+  GOWIN_DIR: IDE
+  BUILD_OUTPUT_DIR: build
+  IMAGE_NAME: riscv
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      GOWIN_VERSION: "1.9.11.03"
-      GOWIN_DIR: IDE
-      BUILD_OUTPUT_DIR: build
-      IMAGE_NAME: riscv
 
     steps:
       - name: Checkout repository
@@ -36,13 +36,12 @@ jobs:
       - name: Download and install GOWIN IDE
         if: steps.cache-gowin.outputs.cache-hit != 'true'
         run: |
-          echo "Downloading GOWIN EDA Education ${GOWIN_VERSION}..."
+          echo "Downloading GOWIN EDA Education $GOWIN_VERSION..."
           GOWIN_TAR="Gowin_V${GOWIN_VERSION}_Education_Linux.tar.gz"
-          curl -L "https://cdn.gowinsemi.com.cn/${GOWIN_TAR}" -o "${GOWIN_TAR}"
-
-          mkdir -p "${GOWIN_DIR}"
-          tar -xzf "${GOWIN_TAR}"
-          rm "${GOWIN_TAR}"
+          curl -L "https://cdn.gowinsemi.com.cn/$GOWIN_TAR" -o "$GOWIN_TAR"
+          mkdir -p "$GOWIN_DIR"
+          tar -xzf "$GOWIN_TAR"
+          rm "$GOWIN_TAR"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,12 +59,14 @@ jobs:
 
       - name: Run build inside container
         run: |
-          mkdir -p "${BUILD_OUTPUT_DIR}"
+          mkdir -p "$BUILD_OUTPUT_DIR"
           docker run --rm \
-            -v "${PWD}:/workspace" \
+            -v "$PWD":/workspace \
             -w /workspace \
-            "${IMAGE_NAME}:latest" \
-            bash -lc "python3 cpu.py --build"
+            -e PYTHON=/opt/venv/bin/python3 \
+            -e GOWIN_HOME=/workspace/IDE \
+            ${{ env.IMAGE_NAME }}:latest \
+            bash -lc '/opt/venv/bin/python3 cpu.py --build'
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
