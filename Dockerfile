@@ -15,18 +15,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Stage 2: Python environment with LiteX installed
 FROM base AS python-lite
 
-# Create venv and use it explicitly
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 
-RUN /opt/venv/bin/pip install --upgrade pip setuptools wheel \
-    && /opt/venv/bin/pip install migen apycula --timeout 100 --retries 3
+# Install Python deps into the venv (no extra symlinks)
+RUN python3 -m pip install --upgrade pip setuptools wheel \
+    && python3 -m pip install migen apycula --timeout 100 --retries 3
 
 WORKDIR /opt
 
 RUN wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py \
     && chmod +x litex_setup.py \
-    && /opt/venv/bin/python litex_setup.py --init --install --config=standard \
+    && python3 litex_setup.py --init --install --config=standard \
     && rm litex_setup.py
 
 # Stage 3: RISC-V Toolchain
@@ -52,7 +52,7 @@ RUN git clone --recursive https://github.com/YosysHQ/nextpnr.git /opt/nextpnr \
 # Stage 5: Final image with Gowin Toolchain
 FROM nextpnr
 
-# Ensure we still use the venv Python at runtime
+# Use the venv Python at runtime
 ENV PATH="/opt/venv/bin:${PATH}"
 
 WORKDIR /workspace
