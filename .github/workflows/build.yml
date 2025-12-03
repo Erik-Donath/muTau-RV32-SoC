@@ -34,22 +34,15 @@ jobs:
           tar -xzf "${GOWIN_TAR}"
           rm "${GOWIN_TAR}"
 
-      - name: Show GOWIN directory contents (debug)
-        run: ls -R "${GOWIN_DIR}"
+      #- name: Show GOWIN directory contents (debug)
+      #  run: ls -R "${GOWIN_DIR}"
 
-      #- name: Build project with GOWIN
-      #  run: |
-      #    mkdir -p "${BUILD_OUTPUT_DIR}"
+      - name: Build
+        run: |
+          make run
 
-      #    export GOWIN_HOME="${GOWIN_DIR}"
-      #    export PATH="${GOWIN_HOME}/bin:${PATH}"
-
-      #    chmod +x ./env.sh || true
-      #    source ./env.sh
-      #    python3 cpu.py --build
-
-      #- name: Upload build artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: fpga-build-${{ github.run_number }}
-      #    path: ${{ env.BUILD_OUTPUT_DIR }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fpga-build-${{ github.run_number }}
+          path: ${{ env.BUILD_OUTPUT_DIR }}
