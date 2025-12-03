@@ -1,10 +1,12 @@
-name: Build docs and deploy to Pages
+name: Pages
 
 on:
   push:
     paths:
-      - "pages/**"
-      - ".github/workflows/pages.yml"
+      - 'pages/**'
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,43 +18,87 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-docs:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.paths.* , 'docs/**')
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Copy everything from /pages except /pages/doc into result
-      - name: Prepare result directory
-        run: |
-          mkdir -p result
-          rsync -av --delete \
-            --exclude 'doc/' \
-            pages/ result/
+      - name: Setup LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: docs/main.tex
 
-      - name: Install TeX Live
+      - name: Prepare docs artifact
         run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive-full
+          mkdir -p pages/static/docs
+          cp docs/main.pdf pages/static/docs/
 
-      - name: Build LaTeX documentation to HTML
-        working-directory: pages/doc
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-docs
+          path: pages/static/docs
+          retention-days: 30
+
+  build-pages:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.paths.* , 'pages/**')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare pages artifact
         run: |
-          mkdir -p ../../result/doc
-          make4ht -u -d ../../result/doc main.tex
+          mkdir -p pages/static/docs
+
+      - name: Upload pages artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-pages
+          path: pages
+          retention-days: 30
+
+  deploy:
+    needs: [build-docs, build-pages]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download docs artifact (latest)
+        uses: actions/download-artifact@v4
+        with:
+          name: built-docs
+          path: static/docs
+        continue-on-error: true
+
+      - name: Download pages artifact (latest)
+        uses: actions/download-artifact@v4
+        with:
+          name: built-pages
+          path: .
+        continue-on-error: true
+
+      - name: Ensure complete structure
+        run: |
+          # Merge: pages/ content + static/docs/ PDFs
+          mkdir -p static/docs
+          # If pages artifact missing, checkout original pages/
+          if [ ! -f "index.html" ]; then
+            git sparse-checkout set pages
+            git checkout HEAD -- pages
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: result
+          path: .
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
