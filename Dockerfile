@@ -74,9 +74,6 @@ FROM nextpnr
 
 WORKDIR /workspace
 
-# Copy Gowin IDE from build context into the image.
-COPY IDE /workspace/IDE
-
 # Make IDE binaries executable
 RUN if [ -d "/workspace/IDE/bin" ]; then \
       chmod -R a+rx /workspace/IDE/bin; \
