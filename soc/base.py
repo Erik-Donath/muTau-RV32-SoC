@@ -27,7 +27,8 @@ class BaseSoC(SoCCore):
         Args:
             config: SoC configuration object
         """
-        self.config = config
+        # Store config under different name to avoid conflict with SoCCore.config
+        self.soc_config = config
         
         # Get board configuration
         board = get_board(config.board_name)
@@ -43,7 +44,7 @@ class BaseSoC(SoCCore):
         SoCCore.__init__(
             self,
             platform,
-            config.sys_clk_freq,  # This is the required positional argument
+            config.sys_clk_freq,
             cpu_type=config.cpu_type,
             cpu_variant=config.cpu_variant,
             cpu_reset_address=config.cpu_reset_address,
@@ -65,6 +66,13 @@ class BaseSoC(SoCCore):
         # Get board-specific HyperRAM pads
         pads = board.get_hyperram_pads(platform)
         
+        # Connect HyperRAM clocks (pads object has _ck and _ck_n)
+        if hasattr(pads, '_ck'):
+            self.comb += [
+                pads._ck.eq(pads.clk),
+                pads._ck_n.eq(~pads.clk),
+            ]
+        
         # Create HyperRAM controller
         self.hyperram = create_hyperram_controller(pads)
         
@@ -74,7 +82,7 @@ class BaseSoC(SoCCore):
             slave=self.hyperram.bus,
             region=SoCRegion(
                 origin=self.mem_map["main_ram"],
-                size=self.config.hyperram_size
+                size=self.soc_config.hyperram_size  # Use soc_config instead of config
             )
         )
         

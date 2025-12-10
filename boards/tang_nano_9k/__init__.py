@@ -26,7 +26,12 @@ class TangNano9K(Board):
         return TangNano9KPlatform()
     
     def get_hyperram_pads(self, platform):
-        """Get HyperRAM pads for first chip"""
+        """
+        Get HyperRAM pads for first chip
+        
+        Note: Clock connections must be done by the caller (SoC)
+        since platform doesn't have comb attribute
+        """
         dq = platform.request("IO_psram_dq")
         rwds = platform.request("IO_psram_rwds")
         reset_n = platform.request("O_psram_reset_n")
@@ -41,16 +46,11 @@ class TangNano9K(Board):
                 self.dq = dq[0:8]
                 self.cs_n = cs_n[0]
                 self.rwds = rwds[0]
+                # Store clock outputs for connection by caller
+                self._ck = ck[0]
+                self._ck_n = ck_n[0]
         
-        pads = HyperRAMPads()
-        
-        # Connect differential clock
-        platform.comb += [
-            ck[0].eq(pads.clk),
-            ck_n[0].eq(~pads.clk),
-        ]
-        
-        return pads
+        return HyperRAMPads()
     
     def add_peripherals(self, soc, platform, config):
         """Add Tang Nano 9K specific peripherals"""
