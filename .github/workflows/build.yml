@@ -63,7 +63,6 @@ jobs:
           docker run --rm \
             -v "$PWD":/workspace \
             -w /workspace \
-            -e PYTHON=/opt/venv/bin/python3 \
             -e GOWIN_HOME=/workspace/IDE \
             -e QT_QPA_PLATFORM=offscreen \
             -e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
