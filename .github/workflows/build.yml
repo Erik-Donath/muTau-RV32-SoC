@@ -2,6 +2,15 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      board:
+        description: "Target board"
+        required: false
+        default: "tang_nano_9k"
+      firmware:
+        description: "Firmware image"
+        required: false
+        default: "bios"
 
 permissions:
   contents: read
@@ -11,7 +20,7 @@ env:
   GOWIN_VERSION: "1.9.11.03"
   GOWIN_DIR: IDE
   BUILD_OUTPUT_DIR: build
-  IMAGE_NAME: riscv
+  IMAGE_NAME: riscv-soc
 
 jobs:
   build:
@@ -58,16 +67,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run build inside container
+        env:
+          BOARD: ${{ github.event.inputs.board }}
+          FIRMWARE: ${{ github.event.inputs.firmware }}
         run: |
           mkdir -p "$BUILD_OUTPUT_DIR"
-          docker run --rm \
-            -v "$PWD":/workspace \
-            -w /workspace \
-            -e GOWIN_HOME=/workspace/IDE \
-            -e QT_QPA_PLATFORM=offscreen \
-            -e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
-            ${{ env.IMAGE_NAME }}:latest \
-            bash -lc 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board tang_nano_9k --firmware bios --build'
+          make build DOCKER_IMAGE=${{ env.IMAGE_NAME }}:latest BOARD=$BOARD FIRMWARE=$FIRMWARE
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
