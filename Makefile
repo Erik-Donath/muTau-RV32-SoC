@@ -4,6 +4,13 @@ FIRMWARE ?= bios
 DOCKER_IMAGE := riscv-soc
 WORKSPACE := $(shell pwd)
 
+# Detect if running in CI (GitHub Actions sets CI=true)
+ifdef CI
+    DOCKER_FLAGS := --rm
+else
+    DOCKER_FLAGS := --rm -it
+endif
+
 .PHONY: help build flash load terminal clean docker-build shell
 
 help:
@@ -31,7 +38,7 @@ docker-build:
 	docker build -t $(DOCKER_IMAGE) -f Dockerfile .
 
 build: docker-build
-	docker run --rm -it \
+	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
 		-e GOWIN_HOME=/workspace/IDE \
@@ -41,7 +48,7 @@ build: docker-build
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --firmware $(FIRMWARE) --build'
 
 flash: docker-build
-	docker run --rm -it \
+	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
 		--privileged \
@@ -53,7 +60,7 @@ flash: docker-build
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --flash'
 
 load: docker-build
-	docker run --rm -it \
+	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
 		--privileged \
@@ -65,7 +72,7 @@ load: docker-build
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --load'
 
 shell: docker-build
-	docker run --rm -it \
+	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
 		-e GOWIN_HOME=/workspace/IDE \
