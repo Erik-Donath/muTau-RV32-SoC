@@ -8,7 +8,7 @@ class Board:
 
     name: str = "Unknown Board"
 
-    # Clock configuration defaults (can be overridden per-board).
+    # Clock configuration defaults (override per board)
     input_clk_name: str = ""
     input_clk_freq: float = 0.0
 
@@ -20,13 +20,18 @@ class Board:
         """
         Add board-specific main memory (external RAM) to SoC.
 
-        This may be HyperRAM, SDRAM, DDR, or no-op if the board has only
-        integrated memory.
+        May be HyperRAM, SDRAM, DDR, or a no-op if the board relies only on
+        integrated RAM.
         """
         raise NotImplementedError
 
     def add_peripherals(self, soc, platform, config):
-        """Add board-specific peripherals to SoC"""
+        """
+        Add board-specific peripherals to SoC.
+
+        Should interpret config.want_* flags, but only add what the board
+        actually supports at the IO level.
+        """
         raise NotImplementedError
 
 

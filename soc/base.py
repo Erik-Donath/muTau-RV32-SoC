@@ -1,13 +1,9 @@
 """Base SoC Implementation"""
 
-from migen import Signal
-
 from litex.soc.integration.soc_core import SoCCore
-from litex.soc.integration.soc import SoCRegion
 
 from .clocking import ClockDomainGenerator
 from .config import SoCConfig
-
 from boards import get_board
 
 
@@ -15,10 +11,10 @@ class BaseSoC(SoCCore):
     """
     Base RISC-V SoC
 
-    This is the main SoC class that integrates:
+    Integrates:
     - CPU (VexRiscv by default)
     - Memory (integrated + optional external)
-    - Peripherals (UART, GPIO, Timers, etc.)
+    - Board-specific peripherals
     """
 
     def __init__(self, config: SoCConfig):
@@ -57,9 +53,9 @@ class BaseSoC(SoCCore):
             ident_version=True,
         )
 
-        # Add main memory: let the board decide how to implement external RAM.
-        if not self.integrated_main_ram_size and getattr(config, "with_external_ram", False):
+        # Add main memory (board decides how / if external RAM is used)
+        if not self.integrated_main_ram_size and config.with_external_ram:
             board.add_main_memory(self, platform, config)
 
-        # Add peripherals
+        # Add all board-specific peripherals (board decides what it can provide)
         board.add_peripherals(self, platform, config)
