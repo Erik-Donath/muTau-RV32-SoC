@@ -98,7 +98,6 @@ def main():
     
     # Configuration
     parser.add_argument("--sys-clk-freq", type=float, default=27e6, help="System clock frequency")
-    parser.add_argument("--no-hyperram", action="store_true", help="Disable HyperRAM")
     
     args = parser.parse_args()
     
@@ -107,7 +106,7 @@ def main():
         board_name=args.board,
         firmware_target=FirmwareTarget(args.firmware),
         sys_clk_freq=args.sys_clk_freq,
-        with_hyperram=not args.no_hyperram,
+        with_external_ram=True
     )
     
     # Build SoC
