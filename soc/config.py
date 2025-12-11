@@ -45,13 +45,13 @@ class SoCConfig:
     cpu_variant: str = "standard"
     cpu_reset_address: Optional[int] = None
 
-    # Peripheral configuration
-    with_uart: bool = True
-    with_timer: bool = True
-    with_gpio: bool = True
-    with_i2c: bool = True
-    with_spi: bool = True
-    with_pwm: bool = True
+    # Peripheral configuration (desire; board decides what it can provide)
+    want_uart: bool = True
+    want_timer: bool = True
+    want_gpio: bool = True
+    want_i2c: bool = True
+    want_spi: bool = True
+    want_pwm: bool = True
 
     # Build configuration
     build_name: str = "soc"

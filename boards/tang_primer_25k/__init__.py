@@ -1,9 +1,8 @@
 """Tang Primer 25K Board Support"""
 
 from boards import Board, register_board
-
 from .platform import TangPrimer25KPlatform
-from .peripherals import add_peripherals
+from .peripherals import add_peripherals as primer_add_peripherals
 
 
 @register_board("tang_primer_25k")
@@ -35,10 +34,15 @@ class TangPrimer25K(Board):
         External memory (e.g. SDRAM on the dock) can be added later via a
         dedicated SDRAM controller. For now, rely on integrated RAM only.
         """
-        # No external main RAM; nothing to do here.
+        # No external main RAM; nothing to do here for now.
         return
 
     # Board-specific peripherals ---------------------------------------------
     def add_peripherals(self, soc, platform, config):
-        """Add Tang Primer 25K specific peripherals to the SoC."""
-        add_peripherals(soc, platform, config)
+        """
+        Add Tang Primer 25K specific peripherals to the SoC.
+
+        Delegates to the board's peripherals helper, which should interpret
+        config.want_* flags but only request IOs that exist on this platform.
+        """
+        primer_add_peripherals(soc, platform, config)
