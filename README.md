@@ -1,4 +1,7 @@
 # RiscV-SoC
+[![CodeQL](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/github-code-scanning/codeql)
+[![Build](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/build.yml/badge.svg)](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/build.yml)
+[![Pages](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/pages.yml/badge.svg)](https://github.com/Erik-Donath/RiscV-SoC/actions/workflows/pages.yml)
 
 A small, modular RISC‑V System‑on‑Chip built with [LiteX](https://github.com/enjoy-digital/litex) for Gowin FPGA boards (e.g. Tang Nano 9K, Tang Primer 25K).  
 The project includes board support, basic peripherals, and a simple build flow using Make.
