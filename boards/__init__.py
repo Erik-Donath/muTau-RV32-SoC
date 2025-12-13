@@ -57,4 +57,3 @@ def get_board(name: str) -> Board:
 
 # Import all boards to trigger registration
 from .tang_nano_9k import TangNano9K  # noqa: E402,F401
-from .tang_primer_25k import TangPrimer25K  # noqa: E402,F401
