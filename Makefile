@@ -43,7 +43,7 @@ build: docker-build
 		-w /workspace \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
-		-e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
+		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
 		$(DOCKER_IMAGE) \
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --firmware $(FIRMWARE) --build'
 
@@ -55,7 +55,7 @@ flash: docker-build
 		--device=/dev/bus/usb \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
-		-e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
+		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
 		$(DOCKER_IMAGE) \
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --flash'
 
@@ -67,7 +67,7 @@ load: docker-build
 		--device=/dev/bus/usb \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
-		-e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
+		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
 		$(DOCKER_IMAGE) \
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; python3 -m soc.builder --board $(BOARD) --load'
 
@@ -77,7 +77,7 @@ shell: docker-build
 		-w /workspace \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
-		-e LD_PRELOAD="/lib/x86_64-linux-gnu/libfreetype.so.6:/usr/lib/x86_64-linux-gnu/libz.so" \
+		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
 		$(DOCKER_IMAGE) \
 		bash
 
