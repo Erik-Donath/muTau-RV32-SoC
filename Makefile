@@ -2,13 +2,13 @@ BOARD ?= tang_nano_9k
 NO_EXTERNAL_RAM ?= 0
 DOCKER_IMAGE := mutau-soc
 WORKSPACE := $(shell pwd)
-KERNEL ?= "/path/to/kernel"
+KERNEL ?=
 
-# Hack to fix litex_term for now. #FIXME later
+# Determine kernel address based on RAM configuration
 ifeq ($(NO_EXTERNAL_RAM),1)
-	KERNEL_ADR = 0x10000000
+	KERNEL_ADR := 0x10000000
 else
-	KERNEL_ADR = 0x40000000
+	KERNEL_ADR := 0x40000000
 endif
 
 # Default serial port inside container (host /dev is bind-mounted)
@@ -51,6 +51,7 @@ help:
 	@echo "  BOARD=$(BOARD)"
 	@echo "  NO_EXTERNAL_RAM=$(NO_EXTERNAL_RAM) (0=use external RAM, 1=SRAM only)"
 	@echo "  KERNEL=$(KERNEL)"
+	@echo "  KERNEL_ADR=$(KERNEL_ADR)"
 	@echo "  PORT=$(PORT)"
 
 setup:
@@ -107,14 +108,26 @@ terminal: docker-build
 		-w /workspace \
 		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
-		bash -c 'echo "Press Ctrl+A then Ctrl+X to exit" && picocom -b 115200 $(PORT)'
+		bash -c 'echo "Press Ctrl+C then Ctrl+X to exit" && litex_term $(PORT)'
 
 upload: docker-build
+ifeq ($(KERNEL),)
+	@echo "ERROR: KERNEL variable must be set to the path of the binary file"
+	@echo "Usage: make upload KERNEL=/path/to/kernel.bin"
+	@exit 1
+endif
+ifeq ($(wildcard $(KERNEL)),)
+	@echo "ERROR: Kernel file '$(KERNEL)' does not exist"
+	@exit 1
+endif
+	@echo "Uploading $(KERNEL) to address $(KERNEL_ADR) via $(PORT)"
 	docker run $(DOCKER_FLAGS) \
-		-v "$(abspath $(KERNEL))":/kernel.bin \
+		-v "$(abspath $(KERNEL))":/kernel.bin:ro \
+		-v "$(WORKSPACE)":/workspace \
+		-w /workspace \
 		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
-		litex_term $(PORT) --kernel-adr $(KERNEL_ADR) --kernel /kernel.bin
+		litex_term --kernel /kernel.bin --kernel-adr $(KERNEL_ADR) $(PORT)
 
 clean:
 	rm -rf build/
