@@ -3,6 +3,7 @@ BOARD ?= tang_nano_9k
 FIRMWARE ?= bios
 DOCKER_IMAGE := riscv-soc
 WORKSPACE := $(shell pwd)
+KERNEL ?= "invalid kernel"
 
 # Detect if running in CI (GitHub Actions sets CI=true)
 ifdef CI
@@ -22,6 +23,7 @@ help:
 	@echo "  load           - Load to SRAM (temporary)"
 	@echo "  terminal       - Open serial terminal"
 	@echo "  shell          - Open Docker shell"
+	@echo "  upload         - Upload Kernel Image to BIOS via Serialboot; Use KERNEL parameter to set PATH for .bin file"
 	@echo "  clean          - Clean build artifacts"
 	@echo "  docker-build   - Build Docker image"
 	@echo ""
@@ -92,6 +94,18 @@ terminal:
 		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
 		$(DOCKER_IMAGE) \
 		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; echo "Press Ctrl+A then Ctrl+X to exit picocom"; picocom -b 115200 /dev/ttyUSB1'
+
+upload: docker-build
+	docker run $(DOCKER_FLAGS) \
+		-v "$(WORKSPACE)":/workspace \
+		-w /workspace \
+		--privileged \
+		--device=/dev/bus/usb \
+		-e GOWIN_HOME=/workspace/IDE \
+		-e QT_QPA_PLATFORM=offscreen \
+		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
+		$(DOCKER_IMAGE) \
+		bash -c 'export PATH="/workspace/IDE/bin:$$PATH"; litex_term --kernel $$KERNEL'
 
 clean:
 	rm -rf build/
