@@ -97,11 +97,10 @@ terminal: docker-build
 
 upload: docker-build
 	docker run $(DOCKER_FLAGS) \
-		-v "$(WORKSPACE)":/workspace \
-		-w /workspace \
+		-v "$(abspath $(KERNEL))":/kernel.bin \
 		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
-		litex_term $(PORT) --kernel $(KERNEL)
+		litex_term $(PORT) --kernel /kernel.bin
 
 clean:
 	rm -rf build/
