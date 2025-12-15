@@ -4,6 +4,13 @@ DOCKER_IMAGE := mutau-soc
 WORKSPACE := $(shell pwd)
 KERNEL ?= "/path/to/kernel"
 
+# Hack to fix litex_term for now. #FIXME later
+ifeq ($(NO_EXTERNAL_RAM),1)
+	KERNEL_ADR = 0x10000000
+else
+	KERNEL_ADR = 0x40000000
+endif
+
 # Default serial port inside container (host /dev is bind-mounted)
 PORT ?= /dev/ttyUSB1
 
@@ -107,7 +114,7 @@ upload: docker-build
 		-v "$(abspath $(KERNEL))":/kernel.bin \
 		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
-		litex_term $(PORT) --kernel /kernel.bin
+		litex_term $(PORT) --kernel-adr $(KERNEL_ADR) --kernel /kernel.bin
 
 clean:
 	rm -rf build/
