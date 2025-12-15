@@ -35,11 +35,9 @@ WORKDIR /opt
 
 RUN git clone https://github.com/m-labs/migen.git && \
     git clone https://github.com/litex-hub/pythondata-software-compiler_rt.git pythondata_software_compiler_rt && \
-    git clone --recursive https://github.com/litex-hub/pythondata-software-picolibc.git pythondata_software_picolibc && \
-    git clone https://github.com/litex-hub/pythondata-cpu-vexriscv.git pythondata_cpu_vexriscv
-
-RUN cd /opt/pythondata_software_picolibc && git submodule update --init --recursive
-
+    git clone https://github.com/litex-hub/pythondata-software-picolibc.git pythondata_software_picolibc && \
+    git clone https://github.com/litex-hub/pythondata-cpu-vexriscv.git pythondata_cpu_vexriscv && \
+    cd pythondata_software_picolibc && git submodule update --init --recursive
 
 FROM litex-deps AS python-env
 

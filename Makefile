@@ -10,6 +10,8 @@ else
     DOCKER_FLAGS := --rm -it
 endif
 
+USB_DOCKER_FLAGS := --privileged -v /dev:/dev
+
 .PHONY: help setup docker-build build flash load shell terminal upload clean
 
 help:
@@ -53,8 +55,7 @@ flash: docker-build
 	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
-		--privileged \
-		--device=/dev/bus/usb \
+		$(USB_DOCKER_FLAGS) \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
 		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
@@ -65,8 +66,7 @@ load: docker-build
 	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
-		--privileged \
-		--device=/dev/bus/usb \
+		$(USB_DOCKER_FLAGS) \
 		-e GOWIN_HOME=/workspace/IDE \
 		-e QT_QPA_PLATFORM=offscreen \
 		-e LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libfreetype.so.6" \
@@ -87,8 +87,7 @@ terminal:
 	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
-		--privileged \
-		--device=/dev/bus/usb \
+		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
 		bash -c 'echo "Press Ctrl+A then Ctrl+X to exit" && picocom -b 115200 /dev/ttyUSB1'
 
@@ -96,8 +95,7 @@ upload: docker-build
 	docker run $(DOCKER_FLAGS) \
 		-v "$(WORKSPACE)":/workspace \
 		-w /workspace \
-		--privileged \
-		--device=/dev/bus/usb \
+		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
 		litex_term --kernel $(KERNEL)
 
