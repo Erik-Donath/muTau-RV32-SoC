@@ -1,3 +1,4 @@
 [submodule "litex"]
 	path = litex
 	url = https://github.com/enjoy-digital/litex.git
+	branch = 2024.12_release
