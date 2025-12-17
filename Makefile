@@ -29,6 +29,10 @@ else
     BUILD_FLAGS :=
 endif
 
+# GOWIN_EDUCATION Version and Path 
+GOWIN_VERSION := 1.9.11.03
+GOWIN_TAR := Gowin_V${GOWIN_VERSION}_Education_Linux.tar.gz
+
 .PHONY: help setup docker-build build flash load shell terminal upload clean
 
 help:
@@ -37,6 +41,7 @@ help:
 	@echo "Setup:"
 	@echo "  setup          - Initialize git submodules"
 	@echo "  docker-build   - Build Docker image"
+	@echo "  install-IDE		- Install the nessasary IDE to build the Project(IDE version $(GOWIN_VERSION))"
 	@echo ""
 	@echo "Build:"
 	@echo "  build          - Build bitstream for $(BOARD)"
@@ -128,6 +133,11 @@ endif
 		$(USB_DOCKER_FLAGS) \
 		$(DOCKER_IMAGE) \
 		litex_term --kernel /kernel.bin --kernel-adr $(KERNEL_ADR) $(PORT)
+
+install-IDE:
+	curl -L https://cdn.gowinsemi.com.cn/$(GOWIN_TAR) -o $(GOWIN_TAR) && \
+	tar -xzf $(GOWIN_TAR) && \
+	rm $(GOWIN_TAR)
 
 clean:
 	rm -rf build/
