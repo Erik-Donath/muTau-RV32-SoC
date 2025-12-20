@@ -61,3 +61,8 @@ def add_peripherals(soc, platform, config):
         # For now, just expose pins as GPIOOut.
         soc.pwm0 = GPIOOut(pads=platform.request("pwm0"))
         soc.pwm1 = GPIOOut(pads=platform.request("pwm1"))
+    
+    # SPID Card
+    if ...
+        soc.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
+        soc.add_spi_sdcard()
