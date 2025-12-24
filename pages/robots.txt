@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://erik-donath.github.io/muTau-RV32-SoC/sitemap.xml
